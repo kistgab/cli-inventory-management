@@ -38,7 +38,7 @@ typedef struct saleProduct
 
 void printOptionsMenu()
 {
-  printf("************* MENU - FILA **********************\n");
+  printf("**************** MENU - BOTECO *****************\n");
   printf("* %i Inserir produto                           *\n", ADD_PRODUCT_OPTION_CODE);
   printf("* %i Remover produto                           *\n", DELETE_PRODUCT_OPTION_CODE);
   printf("* %i Consultar produto                         *\n", GET_PRODUCT_OPTION_CODE);
