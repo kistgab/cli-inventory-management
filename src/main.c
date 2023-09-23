@@ -4,6 +4,9 @@
 #include <string.h>
 #include <time.h>
 
+#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 256
+#define NUMBER_OF_LAST_SALES_TO_STORE 50
+
 #define ADD_PRODUCT_OPTION_CODE 1
 #define DELETE_PRODUCT_OPTION_CODE 2
 #define GET_PRODUCT_OPTION_CODE 3
@@ -62,4 +65,41 @@ void readString(char *destination, int maxLength)
 int main()
 {
   setlocale(LC_ALL, "Portuguese");
+  int selectedMenuOptionCode;
+  Sale doneSales[NUMBER_OF_LAST_SALES_TO_STORE];
+  Product productsInventory[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
+
+  while (selectedMenuOptionCode != EXIT_OPTION_CODE)
+  {
+    printMenu();
+    scanf("%i", &selectedMenuOptionCode);
+
+    switch (selectedMenuOptionCode)
+    {
+    case ADD_PRODUCT_OPTION_CODE:
+      // Call methods here
+      break;
+    case DELETE_PRODUCT_OPTION_CODE:
+      // Call methods here
+      break;
+    case GET_PRODUCT_OPTION_CODE:
+      // Call methods here
+      break;
+    case MODIFY_PRODUCT_OPTION_CODE:
+      // Call methods here
+      break;
+    case SELL_OPTION_CODE:
+      // Call methods here
+      break;
+    case INVENTORY_REPORT_OPTION_CODE:
+      // Call methods here
+      break;
+    case LAST_SALES_REPORT_OPTION_CODE:
+      // Call methods here
+      break;
+    case LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE:
+      // Call methods here
+      break;
+    }
+  }
 }
