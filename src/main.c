@@ -19,6 +19,7 @@
 #define INVENTORY_REPORT_OPTION_CODE 6
 #define LAST_SALES_REPORT_OPTION_CODE 7
 #define LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE 8
+#define INVENTORY_REPORT_BY_PRICE_OPTION_CODE 9
 #define EXIT_OPTION_CODE 999
 
 typedef struct product
@@ -43,19 +44,28 @@ typedef struct sale
   float totalValue;
 } Sale;
 
+
+/// A professoravdeclara as funções em cima e escreve elas embaixo, acho melhor usar esse padrão pela organização tmb
+/// EU vou declarar as minhas aqui, quem quiser deixa tmb e qualquer coisa a gente muda no final
+/// Ass. Guilherme Majestoso
+void sortItemsByPrice(int start, int end, Product array[]);
+void separateArray(int start, int end, Product array[]);
+int generateNewProductId();
+
 void printOptionsMenu()
 {
   printf("**************** MENU - BOTECO *****************\n");
-  printf("* %i Inserir produto                           *\n", ADD_PRODUCT_OPTION_CODE);
-  printf("* %i Remover produto                           *\n", DELETE_PRODUCT_OPTION_CODE);
-  printf("* %i Consultar produto                         *\n", GET_PRODUCT_OPTION_CODE);
-  printf("* %i Alterar produto                           *\n", MODIFY_PRODUCT_OPTION_CODE);
-  printf("* %i Realizar venda                            *\n", SELL_OPTION_CODE);
-  printf("* %i Gerar relatório - Estoque atual           *\n", INVENTORY_REPORT_OPTION_CODE);
-  printf("* %i Gerar relatório - Ultimas 50 vendas       *\n", LAST_SALES_REPORT_OPTION_CODE);
-  printf("* %i Gerar Relatório - Itens com pouco estoque *\n", LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE);
-  printf("* %i Finalizar aplicação                       *\n", EXIT_OPTION_CODE);
-  printf("************************************************\n");
+  printf("* %i Inserir produto                             *\n", ADD_PRODUCT_OPTION_CODE);
+  printf("* %i Remover produto                             *\n", DELETE_PRODUCT_OPTION_CODE);
+  printf("* %i Consultar produto                           *\n", GET_PRODUCT_OPTION_CODE);
+  printf("* %i Alterar produto                             *\n", MODIFY_PRODUCT_OPTION_CODE);
+  printf("* %i Realizar venda                              *\n", SELL_OPTION_CODE);
+  printf("* %i Gerar relatório - Estoque atual             *\n", INVENTORY_REPORT_OPTION_CODE);
+  printf("* %i Gerar relatório - Ultimas 50 vendas         *\n", LAST_SALES_REPORT_OPTION_CODE);
+  printf("* %i Gerar Relatório - Itens com pouco estoque   *\n", LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE);
+  printf("* %i Gerar Relatório - Itens ordenados por preço *\n", INVENTORY_REPORT_BY_PRICE_OPTION_CODE);
+  printf("* %i Finalizar aplicação                         *\n", EXIT_OPTION_CODE);
+  printf("**************************************************\n");
   printf("Qual opção você deseja realizar?\n");
 }
 
@@ -67,11 +77,17 @@ void readString(char *destination, int maxLength)
   }
 }
 
+int generateNewProductId(){
+    static int newId = -1;
+    newId++;
+    return newId;
+}
+
 Product readProductData()
 {
   Product newProduct;
   getchar();
-
+  newProduct.id = generateNewProductId();
   printf("----------- INSERIR UM NOVO PRODUTO -----------: \n");
   printf("Informe o nome: \n");
   readString(newProduct.name, sizeof(newProduct.name));
@@ -220,9 +236,55 @@ int main()
     case LAST_SALES_REPORT_OPTION_CODE:
       // Call methods here
       break;
+    case INVENTORY_REPORT_BY_PRICE_OPTION_CODE:
+        sortItemsByPrice(firstListPosition, lastListPosition, productsInventory);
+        break;
     case LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE:
       printProductsListWithLowQuantity(productsInventory, lastListPosition);
       break;
     }
   }
 }
+
+void sortItemsByPrice(int start, int end, Product array[]){
+    if((start==-1 && end==-1) || end==start)
+        return;
+    ///
+    /// Eu faço isso pq como eu quero ordenar um vetor por preço só pra
+    /// printar ele, mas não alterar a ordem do vetor original, eu tenho que
+    /// passar os valores pra outro vetor e ordenar esse.
+    ///
+    Product duplicateArray[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
+    for(int i = start; i<=end; i++){
+        duplicateArray[i] = array[i];
+    }
+    separateArray(start, end, duplicateArray);
+    printProductsList(duplicateArray, end);
+}
+
+void separateArray(int start, int end, Product array[]){
+    Product aux;
+    int pivot = end;
+    int i = start - 1;
+
+    for (int j = start; j < end; j++) {
+        if (array[j].sellPrice <= array[pivot].sellPrice) {
+            i++;
+            aux = array[j];
+            array[j] = array[i];
+            array[i] = aux;
+        }
+    }
+
+    aux = array[pivot];
+    array[pivot] = array[i+1];
+    array[i+1] = aux;
+    pivot = i+1;
+    if(pivot+1<end)
+        separateArray(pivot+1, end, array);
+
+    if(start<pivot-1)
+        separateArray(pivot-1, i, array);
+
+}
+
