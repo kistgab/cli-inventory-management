@@ -131,23 +131,56 @@ bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPos
   return true;
 }
 
-void printProductsList(Product inventory[], int *lastListPosition)
+void printProduct(Product product)
 {
-  if (*lastListPosition == -1)
+
+  printf("---------- Item ---------\n");
+  printf("Id: %i \n", product.id);
+  printf("Nome: %s \n", product.name);
+  printf("Descrição: %s \n", product.description);
+  printf("Quantidade em estq.: %i \n", product.quantity);
+  printf("Preço de venda: %.2f \n", product.sellPrice);
+  printf("---------- ** ---------\n");
+}
+
+void printProductsList(Product inventory[], int lastListPosition)
+{
+  if (lastListPosition == -1)
   {
     printf("Não existem produtos no cadastrados no estoque! \n");
     return;
   }
   printf("\n****** RELATÓRIO DO ESTOQUE COMPLETO ****** \n");
-  for (int i = 0; i <= *lastListPosition; i++)
+  for (int i = 0; i <= lastListPosition; i++)
   {
-    printf("---------- Item ---------\n");
-    printf("Id: %i \n", inventory[i].id);
-    printf("Nome: %s \n", inventory[i].name);
-    printf("Descrição: %s \n", inventory[i].description);
-    printf("Quantidade em estq.: %i \n", inventory[i].quantity);
-    printf("Preço de venda: %.2f \n", inventory[i].sellPrice);
-    printf("---------- ** ---------\n");
+    printProduct(inventory[i]);
+  }
+  printf("************** FIM RELATORIO ************** \n\n\n");
+}
+
+void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
+{
+  if (lastListPosition == -1)
+  {
+    printf("Não existem produtos no cadastrados no estoque! \n");
+    return;
+  }
+  int maximumQuantity;
+  bool foundAnyProductWithLowQuantity = false;
+  printf("Listar itens que tenham esta ou menor quantidade:");
+  scanf("%i", &maximumQuantity);
+  printf("\n****** RELATÓRIO DO ESTOQUE COMPLETO ****** \n");
+  for (int i = 0; i <= lastListPosition; i++)
+  {
+    if (inventory[i].quantity <= maximumQuantity)
+    {
+      printProduct(inventory[i]);
+      foundAnyProductWithLowQuantity = true;
+    }
+  }
+  if (!foundAnyProductWithLowQuantity)
+  {
+    printf("Nenhum produto satisfaz essa quantidade máxima! \n");
   }
   printf("************** FIM RELATORIO ************** \n\n\n");
 }
@@ -182,13 +215,13 @@ int main()
       // Call methods here
       break;
     case INVENTORY_REPORT_OPTION_CODE:
-      printProductsList(productsInventory, &lastListPosition);
+      printProductsList(productsInventory, lastListPosition);
       break;
     case LAST_SALES_REPORT_OPTION_CODE:
       // Call methods here
       break;
     case LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE:
-      // Call methods here
+      printProductsListWithLowQuantity(productsInventory, lastListPosition);
       break;
     }
   }
