@@ -102,7 +102,7 @@ bool hasSpaceInTheEndOfTheList(int lastListPosition)
   return lastListPosition < LAST_POSSIBLE_PRODUCT_LIST_POSITION;
 }
 
-bool insertProduct(Product linearList[], int *firstListPosition, int *lastListPosition)
+bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPosition)
 {
   Product newProduct;
   newProduct = readProductData();
@@ -123,12 +123,33 @@ bool insertProduct(Product linearList[], int *firstListPosition, int *lastListPo
   {
     for (int i = *firstListPosition; i <= *lastListPosition; i++)
     {
-      linearList[i - 1] = linearList[i];
+      inventory[i - 1] = inventory[i];
     }
     (*firstListPosition)--;
   }
-  linearList[*lastListPosition] = newProduct;
+  inventory[*lastListPosition] = newProduct;
   return true;
+}
+
+void printProductsList(Product inventory[], int *lastListPosition)
+{
+  if (*lastListPosition == -1)
+  {
+    printf("Não existem produtos no cadastrados no estoque! \n");
+    return;
+  }
+  printf("\n****** RELATÓRIO DO ESTOQUE COMPLETO ****** \n");
+  for (int i = 0; i <= *lastListPosition; i++)
+  {
+    printf("---------- Item ---------\n");
+    printf("Id: %i \n", inventory[i].id);
+    printf("Nome: %s \n", inventory[i].name);
+    printf("Descrição: %s \n", inventory[i].description);
+    printf("Quantidade em estq.: %i \n", inventory[i].quantity);
+    printf("Preço de venda: %.2f \n", inventory[i].sellPrice);
+    printf("---------- ** ---------\n");
+  }
+  printf("************** FIM RELATORIO ************** \n\n\n");
 }
 
 int main()
@@ -143,8 +164,6 @@ int main()
   {
     printOptionsMenu();
     scanf("%i", &selectedMenuOptionCode);
-
-    printf("Posicao final da lista atual: %i", lastListPosition);
     switch (selectedMenuOptionCode)
     {
     case ADD_PRODUCT_OPTION_CODE:
@@ -163,7 +182,7 @@ int main()
       // Call methods here
       break;
     case INVENTORY_REPORT_OPTION_CODE:
-      // Call methods here
+      printProductsList(productsInventory, &lastListPosition);
       break;
     case LAST_SALES_REPORT_OPTION_CODE:
       // Call methods here
