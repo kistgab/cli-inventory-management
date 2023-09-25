@@ -25,6 +25,7 @@
 typedef struct product
 {
   int id;
+  int aux;
   char name[128];
   char description[128];
   int quantity;
@@ -54,7 +55,7 @@ int generateNewProductId();
 
 void printOptionsMenu()
 {
-  printf("**************** MENU - BOTECO *****************\n");
+  printf("\n**************** MENU - BOTECO *****************\n");
   printf("* %i Inserir produto                             *\n", ADD_PRODUCT_OPTION_CODE);
   printf("* %i Remover produto                             *\n", DELETE_PRODUCT_OPTION_CODE);
   printf("* %i Consultar produto                           *\n", GET_PRODUCT_OPTION_CODE);
@@ -201,6 +202,53 @@ void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
   printf("************** FIM RELATORIO ************** \n\n\n");
 }
 
+int idDelete(){
+    int idToDelete;
+      printf("\n----------- REMOVER UM PRODUTO -----------: \n");
+      printf("Informe o id do item a ser removido: ");
+      scanf("%d", &idToDelete);
+
+    return idToDelete;
+}
+
+void delectProduct (Product linearList[], int *firstListPosition, int *lastListPosition){
+    int positionToDelete = -1, i, j, resultadoIdDelete;
+
+    resultadoIdDelete = idDelete();
+
+    for(i = *firstListPosition; i <= *lastListPosition; i++){
+        if(linearList[i].id == resultadoIdDelete){
+            positionToDelete = i;
+            break;
+            }
+        }
+
+        if (positionToDelete != -1){
+            for(j = positionToDelete; j < *lastListPosition; j++){
+                linearList[j] = linearList[j+1];
+            }
+            (*lastListPosition)--;
+            printf("Produto de ID %d foi removido com sucesso", resultadoIdDelete);
+
+            bubbleSort(linearList, *firstListPosition, *lastListPosition);
+        } else {
+            printf("Produto com ID %d não encontrado", resultadoIdDelete);
+        }
+}
+
+void bubbleSort(Product linearList[], int left, int right) {
+    int i, j;
+    for (i = left; i < right; i++) {
+        for (j = left; j < right; j++) {
+            if (linearList[j].id > linearList[j + 1].id) {
+                Product aux = linearList[j];
+                linearList[j] = linearList[j + 1];
+                linearList[j + 1] = aux;
+            }
+        }
+    }
+}
+
 int main()
 {
   int firstListPosition = -1, lastListPosition = -1;
@@ -219,7 +267,7 @@ int main()
       insertProduct(productsInventory, &firstListPosition, &lastListPosition);
       break;
     case DELETE_PRODUCT_OPTION_CODE:
-      // Call methods here
+      delectProduct(productsInventory, &firstListPosition, &lastListPosition);
       break;
     case GET_PRODUCT_OPTION_CODE:
       // Call methods here
