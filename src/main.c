@@ -52,6 +52,9 @@ typedef struct sale
 void sortItemsByPrice(int start, int end, Product array[]);
 void separateArray(int start, int end, Product array[]);
 int generateNewProductId();
+void sellProduct(int start, int end, Product array[]);
+int getId(char text[]);
+int getProductPositionById(int id, Product array[], int start, int end);
 
 void printOptionsMenu()
 {
@@ -276,7 +279,7 @@ int main()
       // Call methods here
       break;
     case SELL_OPTION_CODE:
-      // Call methods here
+      sellProduct(firstListPosition, lastListPosition, productsInventory);
       break;
     case INVENTORY_REPORT_OPTION_CODE:
       printProductsList(productsInventory, lastListPosition);
@@ -293,6 +296,37 @@ int main()
     }
   }
 }
+
+void sellProduct(int start, int end, Product array[]){
+    int qty = 0;
+    if(start==-1 && end==-1)
+        return;
+    printProductsList(array, end);
+    int id = getId("-------Vender Produto---------\nDigite o Id:\n");
+    do{
+        printf("Quantos itens foram vendidos?\n");
+        scanf("%d", &qty);
+    }
+    while(qty<0);
+    int productPosition = getProductPositionById(id, array, start, end);
+    array[productPosition].quantity -= qty;
+}
+
+int getId(char text[]){
+    int id;
+    printf("%s", text);
+    scanf("%d", &id);
+    return id;
+}
+
+int getProductPositionById(int id, Product array[], int start, int end){
+    for(int i = start; i<=end; i++)
+        if(array[i].id==id)
+            return i;
+    return -1;
+}
+
+
 
 void sortItemsByPrice(int start, int end, Product array[]){
     if((start==-1 && end==-1) || end==start)
