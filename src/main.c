@@ -5,6 +5,8 @@
 #include <time.h>
 #include <stdbool.h>
 
+#define BUF_LEN 30
+
 #define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 256
 #define NUMBER_OF_LAST_SALES_TO_STORE 50
 
@@ -45,6 +47,7 @@ typedef struct sale
     SaleProduct soldItems[64];
     int numberOfSales;
     float totalValue;
+    char date[30];
 } Sale;
 
 /// A professora declara as funções em cima e escreve elas embaixo, acho melhor usar esse padrão pela organização tmb
@@ -327,6 +330,7 @@ void printLast50Sales(Sale sales[], int end){
             printf("Produto: %s \n",sales[i].soldItems[j].name);
             printf("Quantidade: %d\n",sales[i].soldItems[j].quantitySold);
         }
+        printf("DATA = %s \n", sales[i].date);
         printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
     }
 }
@@ -336,14 +340,20 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int* last
     SaleProduct productsSold[64];
     int qty = 0;
     int counter = -1;
+    char buf[BUF_LEN] = {0};
+    newSale.totalValue = 0;
 
     if(start==-1 && end==-1)
         return;
     printProductsList(products, end);
 
     do{
-        int id = getId("-------Vender Produto---------\nDigite o Id (-1 para cancelar):\n");
+        time_t now = time(NULL);
+        struct tm *ptm = localtime(&now);
+        strftime(buf, BUF_LEN, "%d/%m-%Hh%Mm", ptm);
+        strcpy(newSale.date, buf);
 
+        int id = getId("-------Vender Produto---------\nDigite o Id (-1 para cancelar):\n");
         if(id==-1){
             newSale.id = generateNewSaleId;
             addNewSale(sales, newSale, lastSale);
@@ -362,7 +372,7 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int* last
             scanf("%d", &qty);
         }while(qty<0);
 
-        if(products[productPosition].quantity-qty <= 0){
+        if(products[productPosition].quantity-qty < 0){
             printf("Operação Cancelada: o estoque e a quantidade vendida não correspondem\n");
             return;
         }
