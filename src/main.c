@@ -35,6 +35,7 @@ typedef struct product
 typedef struct saleProduct
 {
     int id;
+    char name[128];
     int quantitySold;
 } SaleProduct;
 
@@ -42,6 +43,7 @@ typedef struct sale
 {
     int id;
     SaleProduct soldItems[64];
+    int numberOfSales;
     float totalValue;
 } Sale;
 
@@ -51,24 +53,27 @@ typedef struct sale
 void sortItemsByPrice(int start, int end, Product array[]);
 void separateArray(int start, int end, Product array[]);
 int generateNewProductId();
-void sellProduct(int start, int end, Product array[]);
+int generateNewSaleId();
+void sellProduct(int start, int end, Product array[], Sale sales[], int* lastSale);
 int getId(char text[]);
 int getProductPositionById(int id, Product array[], int start, int end);
+void addNewSale(Sale sales[], Sale newSale, int* end);
+void printLast50Sales(Sale sales[], int end);
 
 void printOptionsMenu()
 {
-    printf("\n**************** MENU - BOTECO *****************\n");
-    printf("* %i Inserir produto                             *\n", ADD_PRODUCT_OPTION_CODE);
-    printf("* %i Remover produto                             *\n", DELETE_PRODUCT_OPTION_CODE);
-    printf("* %i Consultar produto                           *\n", GET_PRODUCT_OPTION_CODE);
-    printf("* %i Alterar produto                             *\n", MODIFY_PRODUCT_OPTION_CODE);
-    printf("* %i Realizar venda                              *\n", SELL_OPTION_CODE);
-    printf("* %i Gerar relatório - Estoque atual             *\n", INVENTORY_REPORT_OPTION_CODE);
-    printf("* %i Gerar relatório - Ultimas 50 vendas         *\n", LAST_SALES_REPORT_OPTION_CODE);
-    printf("* %i Gerar Relatório - Itens com pouco estoque   *\n", LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE);
+    printf("\n**************** MENU - BOTECO ********************\n");
+    printf("* %i Inserir produto                               *\n", ADD_PRODUCT_OPTION_CODE);
+    printf("* %i Remover produto                               *\n", DELETE_PRODUCT_OPTION_CODE);
+    printf("* %i Consultar produto                             *\n", GET_PRODUCT_OPTION_CODE);
+    printf("* %i Alterar produto                               *\n", MODIFY_PRODUCT_OPTION_CODE);
+    printf("* %i Realizar venda                                *\n", SELL_OPTION_CODE);
+    printf("* %i Gerar relatório - Estoque atual              *\n", INVENTORY_REPORT_OPTION_CODE);
+    printf("* %i Gerar relatório - Ultimas 50 vendas          *\n", LAST_SALES_REPORT_OPTION_CODE);
+    printf("* %i Gerar Relatório - Itens com pouco estoque    *\n", LOW_QUANTITY_IN_INVENTORY_REPORT_OPTION_CODE);
     printf("* %i Gerar Relatório - Itens ordenados por preço *\n", INVENTORY_REPORT_BY_PRICE_OPTION_CODE);
-    printf("* %i Finalizar aplicação                         *\n", EXIT_OPTION_CODE);
-    printf("**************************************************\n");
+    printf("* %i Finalizar aplicação                       *\n", EXIT_OPTION_CODE);
+    printf("***************************************************\n");
     printf("Qual opção você deseja realizar?\n");
 }
 
@@ -267,6 +272,7 @@ void bubbleSort(Product linearList[], int left, int right)
 int main()
 {
     int firstListPosition = -1, lastListPosition = -1;
+    int lastSale = -1;
     int selectedMenuOptionCode;
     Sale doneSales[NUMBER_OF_LAST_SALES_TO_STORE];
     Product productsInventory[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
@@ -291,13 +297,13 @@ int main()
             // Call methods here
             break;
         case SELL_OPTION_CODE:
-            sellProduct(firstListPosition, lastListPosition, productsInventory);
+            sellProduct(firstListPosition, lastListPosition, productsInventory, doneSales, &lastSale);
             break;
         case INVENTORY_REPORT_OPTION_CODE:
             printProductsList(productsInventory, lastListPosition);
             break;
         case LAST_SALES_REPORT_OPTION_CODE:
-            // Call methods here
+            printLast50Sales(doneSales, lastSale);
             break;
         case INVENTORY_REPORT_BY_PRICE_OPTION_CODE:
             sortItemsByPrice(firstListPosition, lastListPosition, productsInventory);
@@ -309,19 +315,82 @@ int main()
     }
 }
 
-void sellProduct(int start, int end, Product array[]){
+void printLast50Sales(Sale sales[], int end){
+    if(end==-1){
+        printf("Nenhuma venda foi cadastrada!\n");
+        return;
+    }
+
+    printf("RELATORIO DAS VENDAS: \n");
+    for(int i = 0; i<=end; i++){
+        for(int j = 0; j<sales[i].numberOfSales; j++){
+            printf("Produto: %s \n",sales[i].soldItems[j].name);
+            printf("Quantidade: %d\n",sales[i].soldItems[j].quantitySold);
+        }
+        printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
+    }
+}
+
+void sellProduct(int start, int end, Product products[], Sale sales[], int* lastSale){
+    Sale newSale;
+    SaleProduct productsSold[64];
     int qty = 0;
+    int counter = -1;
+
     if(start==-1 && end==-1)
         return;
-    printProductsList(array, end);
-    int id = getId("-------Vender Produto---------\nDigite o Id:\n");
+    printProductsList(products, end);
+
     do{
-        printf("Quantos itens foram vendidos?\n");
-        scanf("%d", &qty);
+        int id = getId("-------Vender Produto---------\nDigite o Id (-1 para cancelar):\n");
+
+        if(id==-1){
+            newSale.id = generateNewSaleId;
+            addNewSale(sales, newSale, lastSale);
+            break;
+        }
+        int productPosition = getProductPositionById(id, products, start, end);
+        if(productPosition==-1){
+            printf("O produto informado não existe!\n");
+            return;
+        }
+        counter++;
+        if(counter>63)
+            return;
+        do{
+            printf("Quantas unidades foram vendidas?\n");
+            scanf("%d", &qty);
+        }while(qty<0);
+
+        if(products[productPosition].quantity-qty <= 0){
+            printf("Operação Cancelada: o estoque e a quantidade vendida não correspondem\n");
+            return;
+        }
+        products[productPosition].quantity -= qty;
+
+        newSale.soldItems[counter].id = id;
+        newSale.soldItems[counter].quantitySold = qty;
+        strcpy(newSale.soldItems[counter].name, products[productPosition].name);
+
+        newSale.totalValue += products[productPosition].sellPrice*qty;
+        newSale.numberOfSales = counter+1;
+    }while(counter<63);
+}
+
+void addNewSale(Sale sales[], Sale newSale, int* end){
+    if(*end==NUMBER_OF_LAST_SALES_TO_STORE-1){
+        for(int i = 0; i<*end; i++)
+            sales[i-1] = sales[i];
+    }else{
+        (*end)++;
     }
-    while(qty<0);
-    int productPosition = getProductPositionById(id, array, start, end);
-    array[productPosition].quantity -= qty;
+    sales[*end] = newSale;
+}
+
+int generateNewSaleId(){
+    static int newId = -1;
+    newId++;
+    return newId;
 }
 
 int getId(char text[]){
