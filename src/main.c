@@ -131,7 +131,7 @@ bool hasSpaceInTheEndOfTheList(int lastListPosition)
 
 void printErrorMessage(char reason[])
 {
-    printf("***********************************\n");
+    printf("****************ERROR**************\n");
     printf("Ocorreu um erro durante a operação\n");
     printf("Razão: %s\n", reason);
     printf("***********************************\n");
@@ -140,7 +140,6 @@ void printErrorMessage(char reason[])
 bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPosition)
 {
     Product newProduct;
-    newProduct = readProductData();
     if (isListFull(*firstListPosition, *lastListPosition))
     {
         printErrorMessage("Lista está cheia!");
@@ -163,6 +162,7 @@ bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPos
         }
         (*firstListPosition)--;
     }
+    newProduct = readProductData();
     inventory[*lastListPosition] = newProduct;
     printf("Produto inserido com sucesso! ");
     return true;
@@ -266,6 +266,10 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
     {
         if (linearList[i].id == resultadoIdDelete)
         {
+            if(linearList[i].quantity > 0){
+                printErrorMessage("Não pode ser excluido um item que tem estoque.");
+                break;
+            }
             positionToDelete = i;
             break;
         }
@@ -279,8 +283,6 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
         }
         (*lastListPosition)--;
         printf("Produto de ID %d foi removido com sucesso", resultadoIdDelete);
-
-        bubbleSort(linearList, *firstListPosition, *lastListPosition);
     }
     else
     {
