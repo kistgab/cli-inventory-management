@@ -458,7 +458,7 @@ void idSearch(Product linearList[], int *firstListPosition, int *lastListPositio
         }
     }
 
-    printf("Número de ID inexistente!");
+    printErrorMessage("Número de ID inexistente!");
 }
 
 int main()
