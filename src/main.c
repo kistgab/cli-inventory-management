@@ -7,7 +7,7 @@
 
 #define BUF_LEN 30
 
-#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 0
+#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 1
 #define NUMBER_OF_LAST_SALES_TO_STORE 50
 
 #define FIRST_POSSIBLE_PRODUCT_LIST_POSITION 0
@@ -109,6 +109,10 @@ Product readProductData()
 
 bool isListFull(int firstListPosition, int lastFilledListPosition)
 {
+    if (FIRST_POSSIBLE_PRODUCT_LIST_POSITION == MAX_QUANTITY_OF_PRODUCTS_TO_STORE)
+    {
+        return true;
+    }
     bool isFirstPositionOcupied = FIRST_POSSIBLE_PRODUCT_LIST_POSITION == firstListPosition;
     bool isLastPositionOcupied = LAST_POSSIBLE_PRODUCT_LIST_POSITION == lastFilledListPosition;
     bool isListFull = isFirstPositionOcupied && isLastPositionOcupied;
@@ -125,11 +129,12 @@ bool hasSpaceInTheEndOfTheList(int lastListPosition)
     return lastListPosition < LAST_POSSIBLE_PRODUCT_LIST_POSITION;
 }
 
-void printErrorMessage(char reason[]) {
-    printf("***********************************");
-    printf("Ocorreu um erro durante a operação");
-    printf("Razão: %s", reason);
-    printf("***********************************");
+void printErrorMessage(char reason[])
+{
+    printf("***********************************\n");
+    printf("Ocorreu um erro durante a operação\n");
+    printf("Razão: %s\n", reason);
+    printf("***********************************\n");
 }
 
 bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPosition)
