@@ -50,20 +50,6 @@ typedef struct sale
     char date[30];
 } Sale;
 
-/// A professora declara as funções em cima e escreve elas embaixo, acho melhor usar esse padrão pela organização tmb
-/// EU vou declarar as minhas aqui, quem quiser deixa tmb e qualquer coisa a gente muda no final
-/// Ass. Guilherme Majestoso
-void sortItemsByPrice(int start, int end, Product array[]);
-void separateArray(int start, int end, Product array[]);
-int generateNewProductId();
-int generateNewSaleId();
-void sellProduct(int start, int end, Product array[], Sale sales[], int* lastSale);
-int getId(char text[]);
-int getProductPositionById(int id, Product array[], int start, int end);
-void addNewSale(Sale sales[], Sale newSale, int* end);
-void printLast50Sales(Sale sales[], int end);
-void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition);
-
 void printOptionsMenu()
 {
     printf("\n**************** MENU - BOTECO ********************\n");
@@ -87,6 +73,14 @@ void readString(char *destination, int maxLength)
     {
         destination[strcspn(destination, "\n")] = '\0';
     }
+}
+
+int getId(char text[])
+{
+    int id;
+    printf("%s", text);
+    scanf("%d", &id);
+    return id;
 }
 
 int generateNewProductId()
@@ -160,6 +154,13 @@ bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPos
     return true;
 }
 
+int generateNewSaleId()
+{
+    static int newId = -1;
+    newId++;
+    return newId;
+}
+
 void printProduct(Product product)
 {
 
@@ -224,6 +225,23 @@ int idDelete()
     return idToDelete;
 }
 
+void bubbleSort(Product linearList[], int left, int right)
+{
+    int i, j;
+    for (i = left; i < right; i++)
+    {
+        for (j = left; j < right; j++)
+        {
+            if (linearList[j].id > linearList[j + 1].id)
+            {
+                Product aux = linearList[j];
+                linearList[j] = linearList[j + 1];
+                linearList[j + 1] = aux;
+            }
+        }
+    }
+}
+
 void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPosition)
 {
     int positionToDelete = -1, i, j, resultadoIdDelete;
@@ -256,21 +274,180 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
     }
 }
 
-void bubbleSort(Product linearList[], int left, int right)
+void printLast50Sales(Sale sales[], int end)
 {
-    int i, j;
-    for (i = left; i < right; i++)
+    if (end == -1)
     {
-        for (j = left; j < right; j++)
+        printf("Nenhuma venda foi cadastrada!\n");
+        return;
+    }
+
+    printf("RELATORIO DAS VENDAS: \n");
+    for (int i = 0; i <= end; i++)
+    {
+        for (int j = 0; j < sales[i].numberOfSales; j++)
         {
-            if (linearList[j].id > linearList[j + 1].id)
-            {
-                Product aux = linearList[j];
-                linearList[j] = linearList[j + 1];
-                linearList[j + 1] = aux;
-            }
+            printf("Produto: %s \n", sales[i].soldItems[j].name);
+            printf("Quantidade: %d\n", sales[i].soldItems[j].quantitySold);
+        }
+        printf("DATA = %s \n", sales[i].date);
+        printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
+    }
+}
+
+void addNewSale(Sale sales[], Sale newSale, int *end)
+{
+    if (*end == NUMBER_OF_LAST_SALES_TO_STORE - 1)
+    {
+        for (int i = 0; i < *end; i++)
+            sales[i - 1] = sales[i];
+    }
+    else
+    {
+        (*end)++;
+    }
+    sales[*end] = newSale;
+}
+
+int getProductPositionById(int id, Product array[], int start, int end)
+{
+    for (int i = start; i <= end; i++)
+        if (array[i].id == id)
+            return i;
+    return -1;
+}
+
+void sellProduct(int start, int end, Product products[], Sale sales[], int *lastSale)
+{
+    Sale newSale;
+    int qty = 0;
+    int counter = -1;
+    char buf[BUF_LEN] = {0};
+    newSale.totalValue = 0;
+
+    if (start == -1 && end == -1)
+        return;
+    printProductsList(products, end);
+
+    do
+    {
+        time_t now = time(NULL);
+        struct tm *ptm = localtime(&now);
+        strftime(buf, BUF_LEN, "%d/%m-%Hh%Mm", ptm);
+        strcpy(newSale.date, buf);
+
+        int id = getId("-------Vender Produto---------\nDigite o Id (-1 para cancelar):\n");
+        if (id == -1)
+        {
+            newSale.id = generateNewSaleId();
+            addNewSale(sales, newSale, lastSale);
+            break;
+        }
+        int productPosition = getProductPositionById(id, products, start, end);
+        if (productPosition == -1)
+        {
+            printf("O produto informado não existe!\n");
+            return;
+        }
+        counter++;
+        if (counter > 63)
+            return;
+        do
+        {
+            printf("Quantas unidades foram vendidas?\n");
+            scanf("%d", &qty);
+        } while (qty < 0);
+
+        if (products[productPosition].quantity - qty < 0)
+        {
+            printf("Operação Cancelada: o estoque e a quantidade vendida não correspondem\n");
+            return;
+        }
+        products[productPosition].quantity -= qty;
+
+        newSale.soldItems[counter].id = id;
+        newSale.soldItems[counter].quantitySold = qty;
+        strcpy(newSale.soldItems[counter].name, products[productPosition].name);
+
+        newSale.totalValue += products[productPosition].sellPrice * qty;
+        newSale.numberOfSales = counter + 1;
+    } while (counter < 63);
+}
+
+void separateArray(int start, int end, Product array[])
+{
+    Product aux;
+    int pivot = end;
+    int i = start - 1;
+
+    for (int j = start; j < end; j++)
+    {
+        if (array[j].sellPrice <= array[pivot].sellPrice)
+        {
+            i++;
+            aux = array[j];
+            array[j] = array[i];
+            array[i] = aux;
         }
     }
+
+    aux = array[pivot];
+    array[pivot] = array[i + 1];
+    array[i + 1] = aux;
+    pivot = i + 1;
+    if (pivot + 1 < end)
+    {
+        separateArray(pivot + 1, end, array);
+    }
+    if (start < pivot - 1)
+    {
+        separateArray(pivot - 1, i, array);
+    }
+}
+
+void sortItemsByPrice(int start, int end, Product array[])
+{
+    if ((start == -1 && end == -1) || end == start)
+    {
+        return;
+    }
+    ///
+    /// Eu faço isso pq como eu quero ordenar um vetor por preço só pra
+    /// printar ele, mas não alterar a ordem do vetor original, eu tenho que
+    /// passar os valores pra outro vetor e ordenar esse.
+    ///
+    Product duplicateArray[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
+    for (int i = start; i <= end; i++)
+    {
+        duplicateArray[i] = array[i];
+    }
+    separateArray(start, end, duplicateArray);
+    printProductsList(duplicateArray, end);
+}
+
+void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition)
+{
+
+    int SearchID;
+
+    printf("Qual o ID do produto? ");
+    scanf("%d", &SearchID);
+
+    for (int i = *firstListPosition; i <= *lastListPosition; i++)
+    {
+        if (linearList[i].id == SearchID)
+        {
+            printf("\nDetalhes do Produto:\n");
+            printf("ID: %d\n", linearList[i].id);
+            printf("Nome: %s\n", linearList[i].name);
+            printf("Descrição: %s\n", linearList[i].description);
+            printf("Quantidade: %d\n", linearList[i].quantity);
+            printf("Preço de Venda: %.2f\n", linearList[i].sellPrice);
+            return;
+        }
+    }
+
+    printf("Número de ID inexistente!");
 }
 
 int main()
@@ -317,175 +494,4 @@ int main()
             break;
         }
     }
-}
-
-void printLast50Sales(Sale sales[], int end){
-    if(end==-1){
-        printf("Nenhuma venda foi cadastrada!\n");
-        return;
-    }
-
-    printf("RELATORIO DAS VENDAS: \n");
-    for(int i = 0; i<=end; i++){
-        for(int j = 0; j<sales[i].numberOfSales; j++){
-            printf("Produto: %s \n",sales[i].soldItems[j].name);
-            printf("Quantidade: %d\n",sales[i].soldItems[j].quantitySold);
-        }
-        printf("DATA = %s \n", sales[i].date);
-        printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
-    }
-}
-
-void sellProduct(int start, int end, Product products[], Sale sales[], int* lastSale){
-    Sale newSale;
-    SaleProduct productsSold[64];
-    int qty = 0;
-    int counter = -1;
-    char buf[BUF_LEN] = {0};
-    newSale.totalValue = 0;
-
-    if(start==-1 && end==-1)
-        return;
-    printProductsList(products, end);
-
-    do{
-        time_t now = time(NULL);
-        struct tm *ptm = localtime(&now);
-        strftime(buf, BUF_LEN, "%d/%m-%Hh%Mm", ptm);
-        strcpy(newSale.date, buf);
-
-        int id = getId("-------Vender Produto---------\nDigite o Id (-1 para cancelar):\n");
-        if(id==-1){
-            newSale.id = generateNewSaleId;
-            addNewSale(sales, newSale, lastSale);
-            break;
-        }
-        int productPosition = getProductPositionById(id, products, start, end);
-        if(productPosition==-1){
-            printf("O produto informado não existe!\n");
-            return;
-        }
-        counter++;
-        if(counter>63)
-            return;
-        do{
-            printf("Quantas unidades foram vendidas?\n");
-            scanf("%d", &qty);
-        }while(qty<0);
-
-        if(products[productPosition].quantity-qty < 0){
-            printf("Operação Cancelada: o estoque e a quantidade vendida não correspondem\n");
-            return;
-        }
-        products[productPosition].quantity -= qty;
-
-        newSale.soldItems[counter].id = id;
-        newSale.soldItems[counter].quantitySold = qty;
-        strcpy(newSale.soldItems[counter].name, products[productPosition].name);
-
-        newSale.totalValue += products[productPosition].sellPrice*qty;
-        newSale.numberOfSales = counter+1;
-    }while(counter<63);
-}
-
-void addNewSale(Sale sales[], Sale newSale, int* end){
-    if(*end==NUMBER_OF_LAST_SALES_TO_STORE-1){
-        for(int i = 0; i<*end; i++)
-            sales[i-1] = sales[i];
-    }else{
-        (*end)++;
-    }
-    sales[*end] = newSale;
-}
-
-int generateNewSaleId(){
-    static int newId = -1;
-    newId++;
-    return newId;
-}
-
-int getId(char text[]){
-    int id;
-    printf("%s", text);
-    scanf("%d", &id);
-    return id;
-}
-
-int getProductPositionById(int id, Product array[], int start, int end){
-    for(int i = start; i<=end; i++)
-        if(array[i].id==id)
-            return i;
-    return -1;
-}
-
-void sortItemsByPrice(int start, int end, Product array[])
-{
-    if ((start == -1 && end == -1) || end == start)
-    {
-        return;
-    }
-    ///
-    /// Eu faço isso pq como eu quero ordenar um vetor por preço só pra
-    /// printar ele, mas não alterar a ordem do vetor original, eu tenho que
-    /// passar os valores pra outro vetor e ordenar esse.
-    ///
-    Product duplicateArray[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
-    for (int i = start; i <= end; i++)
-    {
-        duplicateArray[i] = array[i];
-    }
-    separateArray(start, end, duplicateArray);
-    printProductsList(duplicateArray, end);
-}
-
-void separateArray(int start, int end, Product array[])
-{
-    Product aux;
-    int pivot = end;
-    int i = start - 1;
-
-    for (int j = start; j < end; j++)
-    {
-        if (array[j].sellPrice <= array[pivot].sellPrice)
-        {
-            i++;
-            aux = array[j];
-            array[j] = array[i];
-            array[i] = aux;
-        }
-    }
-
-    aux = array[pivot];
-    array[pivot] = array[i + 1];
-    array[i + 1] = aux;
-    pivot = i + 1;
-    if (pivot + 1 < end)
-    {
-        separateArray(pivot + 1, end, array);
-    }
-    if (start < pivot - 1)
-    {
-        separateArray(pivot - 1, i, array);
-    }
-}
-void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition){
-
-    int SearchID;
-
-    printf("Qual o ID do produto? ");
-    scanf("%d", &SearchID);
-
-    for (int i = *firstListPosition; i <= *lastListPosition; i++) {
-        if (linearList[i].id == SearchID) {
-            printf("\nDetalhes do Produto:\n");
-            printf("ID: %d\n", linearList[i].id);
-            printf("Nome: %s\n", linearList[i].name);
-            printf("Descrição: %s\n", linearList[i].description);
-            printf("Quantidade: %d\n", linearList[i].quantity);
-            printf("Preço de Venda: %.2f\n", linearList[i].sellPrice);
-            return;
-        }
-    }
-
-    printf("Número de ID inexistente!");
 }
