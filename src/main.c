@@ -444,21 +444,16 @@ void sortItemsByPrice(int start, int end, Product array[])
 void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition)
 {
 
-    int SearchID;
+    int searchId;
 
     printf("Qual o ID do produto? ");
-    scanf("%d", &SearchID);
+    scanf("%d", &searchId);
 
     for (int i = *firstListPosition; i <= *lastListPosition; i++)
     {
-        if (linearList[i].id == SearchID)
+        if (linearList[i].id == searchId)
         {
-            printf("\nDetalhes do Produto:\n");
-            printf("ID: %d\n", linearList[i].id);
-            printf("Nome: %s\n", linearList[i].name);
-            printf("Descrição: %s\n", linearList[i].description);
-            printf("Quantidade: %d\n", linearList[i].quantity);
-            printf("Preço de Venda: %.2f\n", linearList[i].sellPrice);
+            printProduct(linearList[i]);
             return;
         }
     }
