@@ -62,6 +62,7 @@ int getId(char text[]);
 int getProductPositionById(int id, Product array[], int start, int end);
 void addNewSale(Sale sales[], Sale newSale, int* end);
 void printLast50Sales(Sale sales[], int end);
+void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition);
 
 void printOptionsMenu()
 {
@@ -294,7 +295,7 @@ int main()
             deleteProduct(productsInventory, &firstListPosition, &lastListPosition);
             break;
         case GET_PRODUCT_OPTION_CODE:
-            // Call methods here
+            idSearch(productsInventory, &firstListPosition, &lastListPosition);
             break;
         case MODIFY_PRODUCT_OPTION_CODE:
             // Call methods here
@@ -466,4 +467,25 @@ void separateArray(int start, int end, Product array[])
     {
         separateArray(pivot - 1, i, array);
     }
+}
+void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition){
+
+    int SearchID;
+
+    printf("Qual o ID do produto? ");
+    scanf("%d", &SearchID);
+
+    for (int i = *firstListPosition; i <= *lastListPosition; i++) {
+        if (linearList[i].id == SearchID) {
+            printf("\nDetalhes do Produto:\n");
+            printf("ID: %d\n", linearList[i].id);
+            printf("Nome: %s\n", linearList[i].name);
+            printf("Descrição: %s\n", linearList[i].description);
+            printf("Quantidade: %d\n", linearList[i].quantity);
+            printf("Preço de Venda: %.2f\n", linearList[i].sellPrice);
+            return;
+        }
+    }
+
+    printf("Número de ID inexistente!");
 }
