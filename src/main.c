@@ -5,8 +5,6 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define BUF_LEN 30
-
 #define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 2
 #define NUMBER_OF_LAST_SALES_TO_STORE 50
 
@@ -28,6 +26,7 @@ typedef struct product
 {
     int id;
     int aux;
+    char date[30];
     char name[128];
     char description[128];
     int quantity;
@@ -119,6 +118,7 @@ void operationMessage(int code){
 
 Product readProductData()
 {
+    char date[30] = {0};
     Product newProduct;
     getchar();
     newProduct.id = generateNewProductId();
@@ -130,6 +130,11 @@ Product readProductData()
     scanf("%i", &newProduct.quantity);
     printf("Informe a o preço de venda: \n");
     scanf("%f", &newProduct.sellPrice);
+
+    time_t moment = time(NULL);
+    struct tm *p_tm = localtime(&moment);
+    strftime(date, 30, "%d/%m-%Hh%Mm", p_tm);
+    strcpy(newProduct.date, date);
     return newProduct;
 }
 
@@ -358,7 +363,7 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
     Sale newSale;
     int qty = 0;
     int counter = -1;
-    char buf[BUF_LEN] = {0};
+    char date[30] = {0};
     newSale.totalValue = 0;
 
     if (start == -1 && end == -1)
@@ -369,10 +374,10 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
 
     do
     {
-        time_t now = time(NULL);
-        struct tm *ptm = localtime(&now);
-        strftime(buf, BUF_LEN, "%d/%m-%Hh%Mm", ptm);
-        strcpy(newSale.date, buf);
+        time_t moment = time(NULL);
+        struct tm *p_tm = localtime(&moment);
+        strftime(date, 30, "%d/%m-%Hh%Mm", p_tm);
+        strcpy(newSale.date, date);
 
         int id = getId("Digite o Id (-1 para cancelar):\n");
         if (id == -1 && counter!=-1)
