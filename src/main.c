@@ -90,12 +90,37 @@ int generateNewProductId()
     return newId;
 }
 
+void operationMessage(int code){
+    switch(code)
+    {
+        case ADD_PRODUCT_OPTION_CODE:
+            printf("----------- INSERIR UM PRODUTO -----------: \n");
+            break;
+        case DELETE_PRODUCT_OPTION_CODE:
+            printf("----------- REMOVER UM PRODUTO -----------: \n");
+            break;
+        case GET_PRODUCT_OPTION_CODE:
+            printf("----------- CONSULTAR UM PRODUTO -----------: \n");
+            break;
+        case MODIFY_PRODUCT_OPTION_CODE:
+            printf("----------- ALTERAR UM PRODUTO -----------: \n");
+            break;
+        case SELL_OPTION_CODE:
+            printf("----------- VENDER UM RODUTO -----------: \n");
+            break;
+        case EXIT_OPTION_CODE:
+            printf("----------- FINALIZANDO A EXECUÇÃO -----------: \n");
+            break;
+        default:
+            break;
+    }
+}
+
 Product readProductData()
 {
     Product newProduct;
     getchar();
     newProduct.id = generateNewProductId();
-    printf("----------- INSERIR UM NOVO PRODUTO -----------: \n");
     printf("Informe o nome: \n");
     readString(newProduct.name, sizeof(newProduct.name));
     printf("Informe a descrição: \n");
@@ -131,7 +156,7 @@ bool hasSpaceInTheEndOfTheList(int lastListPosition)
 
 void printErrorMessage(char reason[])
 {
-    printf("****************ERROR**************\n");
+    printf("\n****************ERROR**************\n");
     printf("Ocorreu um erro durante a operação\n");
     printf("Razão: %s\n", reason);
     printf("***********************************\n");
@@ -164,7 +189,7 @@ void insertProduct(Product inventory[], int *firstListPosition, int *lastListPos
     }
     newProduct = readProductData();
     inventory[*lastListPosition] = newProduct;
-    printf("Produto inserido com sucesso! ");
+    printf("Produto inserido com sucesso! \n");
 }
 
 int generateNewSaleId()
@@ -177,7 +202,7 @@ int generateNewSaleId()
 void printProduct(Product product)
 {
 
-    printf("---------- Item ---------\n");
+    printf("\n---------- Item ---------\n");
     printf("Id: %i \n", product.id);
     printf("Nome: %s \n", product.name);
     printf("Descrição: %s \n", product.description);
@@ -198,7 +223,7 @@ void printProductsList(Product inventory[], int lastListPosition)
     {
         printProduct(inventory[i]);
     }
-    printf("************** FIM RELATORIO ************** \n\n\n");
+    printf("************** FIM RELATORIO ************** \n\n");
 }
 
 void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
@@ -212,7 +237,7 @@ void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
     bool foundAnyProductWithLowQuantity = false;
     printf("Listar itens que tenham esta ou menor quantidade:");
     scanf("%i", &maximumQuantity);
-    printf("\n****** RELATÓRIO DO ESTOQUE COMPLETO ****** \n");
+    printf("\n******* RELATÓRIO DE BAIXO ESTOQUE ******* \n");
     for (int i = 0; i <= lastListPosition; i++)
     {
         if (inventory[i].quantity <= maximumQuantity)
@@ -225,14 +250,13 @@ void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
     {
         printErrorMessage("Nenhum produto satisfaz essa quantidade máxima!");
     }
-    printf("************** FIM RELATORIO ************** \n\n\n");
+    printf("************** FIM RELATORIO ************** \n\n");
 }
 
 int idDelete()
 {
     int idToDelete;
-    printf("\n----------- REMOVER UM PRODUTO -----------: \n");
-    printf("Informe o id do item a ser removido: ");
+    printf("Informe o id do item a ser removido: \n");
     scanf("%d", &idToDelete);
 
     return idToDelete;
@@ -242,6 +266,12 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
 {
     int positionToDelete = -1, i, j, resultadoIdDelete;
 
+    if(*firstListPosition==-1 && *lastListPosition==-1)
+    {
+        printErrorMessage("Nenhum produto foi cadastrado!");
+        return;
+    }
+
     resultadoIdDelete = idDelete();
 
     for (i = *firstListPosition; i <= *lastListPosition; i++)
@@ -250,6 +280,7 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
         {
             if(linearList[i].quantity > 0){
                 printErrorMessage("Não pode ser excluido um item que tem estoque.");
+                positionToDelete = -2;
                 break;
             }
             positionToDelete = i;
@@ -257,7 +288,7 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
         }
     }
 
-    if (positionToDelete != -1)
+    if (positionToDelete > -1)
     {
         for (j = positionToDelete; j < *lastListPosition; j++)
         {
@@ -266,10 +297,11 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
         (*lastListPosition)--;
         printErrorMessage("Produto removido com sucesso");
     }
-    else
+    else if(positionToDelete==-1)
     {
         printErrorMessage("Produto não encontrado");
     }
+
 }
 
 void printLast50Sales(Sale sales[], int end)
@@ -280,7 +312,7 @@ void printLast50Sales(Sale sales[], int end)
         return;
     }
 
-    printf("RELATORIO DAS VENDAS: \n");
+    printf("\n********** RELATÓRIO DE VENDAS ********** \n");
     for (int i = 0; i <= end; i++)
     {
         for (int j = 0; j < sales[i].numberOfSales; j++)
@@ -291,6 +323,7 @@ void printLast50Sales(Sale sales[], int end)
         printf("DATA = %s \n", sales[i].date);
         printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
     }
+    printf("************** FIM RELATORIO ************** \n\n");
 }
 
 void addNewSale(Sale sales[], Sale newSale, int *end)
@@ -324,8 +357,10 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
     newSale.totalValue = 0;
 
     if (start == -1 && end == -1)
+    {
+        printErrorMessage("Nenhum produto foi cadastrado!");
         return;
-    printProductsList(products, end);
+    }
 
     do
     {
@@ -407,13 +442,9 @@ void sortItemsByPrice(int start, int end, Product array[])
 {
     if ((start == -1 && end == -1) || end == start)
     {
+        printErrorMessage("Nenhum item foi cadastrado!\n");
         return;
     }
-    ///
-    /// Eu faço isso pq como eu quero ordenar um vetor por preço só pra
-    /// printar ele, mas não alterar a ordem do vetor original, eu tenho que
-    /// passar os valores pra outro vetor e ordenar esse.
-    ///
     Product duplicateArray[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
     for (int i = start; i <= end; i++)
     {
@@ -427,6 +458,12 @@ void getItemById(Product linearList[], int *firstListPosition, int *lastListPosi
 {
 
     int searchId;
+
+    if(*firstListPosition==-1 && *lastListPosition==-1)
+    {
+        printErrorMessage("Nenhum produto foi cadastrado!");
+        return;
+    }
 
     printf("Qual o ID do produto? ");
     scanf("%d", &searchId);
@@ -461,10 +498,10 @@ void modifyProduct(Product linearList[], int *start, int *end)
     }
     product = &linearList[position];
 
-    printf("Opções: (nome), (preco), (descricao)\nCancelar: (cancelar)\n");
+    printf("Operações: (nome), (preco), (descricao), (cancelar)\n");
     do
     {
-        printf("O quê você deseja alterar?\n");
+        printf("Qual operação deve ser efetuada?\n");
         scanf(" %127[^\n]", op);
         if(strcasecmp(op, "nome")==0)
         {
@@ -497,7 +534,6 @@ void modifyProduct(Product linearList[], int *start, int *end)
         }
     }
     while(strcasecmp(op, "Cancelar")!=0);
-
 }
 
 int main()
@@ -513,6 +549,7 @@ int main()
     {
         printOptionsMenu();
         scanf("%i", &selectedMenuOptionCode);
+        operationMessage(selectedMenuOptionCode);
         switch (selectedMenuOptionCode)
         {
         case ADD_PRODUCT_OPTION_CODE:
