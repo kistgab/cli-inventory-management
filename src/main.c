@@ -295,7 +295,10 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
             linearList[j] = linearList[j + 1];
         }
         (*lastListPosition)--;
-        printErrorMessage("Produto removido com sucesso");
+        if(*lastListPosition==-1){
+            *firstListPosition = -1;
+        }
+        printf("Produto removido com sucesso!\n");
     }
     else if(positionToDelete==-1)
     {
@@ -444,7 +447,7 @@ void separateArray(int start, int end, Product array[])
 
 void sortItemsByPrice(int start, int end, Product array[])
 {
-    if ((start == -1 && end == -1))
+    if (start == -1 && end == -1)
     {
         printErrorMessage("Nenhum item foi cadastrado!\n");
         return;
@@ -486,11 +489,18 @@ void getItemById(Product linearList[], int *firstListPosition, int *lastListPosi
 
 void modifyProduct(Product linearList[], int *start, int *end)
 {
-    int id, quantity;
+    int id;
     Product* product;
     float sellPrice;
     char name[128], description[128];
     char op[30];
+
+    if(*start==-1 && *end==-1)
+    {
+        printErrorMessage("Nenhum produto foi cadastrado!");
+        return;
+    }
+
     printf("Digite o id do produto: \n");
     scanf("%d",&id);
 
