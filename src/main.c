@@ -7,7 +7,7 @@
 
 #define BUF_LEN 30
 
-#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 50
+#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 2
 #define NUMBER_OF_LAST_SALES_TO_STORE 50
 
 #define FIRST_POSSIBLE_PRODUCT_LIST_POSITION 0
@@ -38,6 +38,7 @@ typedef struct saleProduct
 {
     int id;
     char name[128];
+    float price;
     int quantitySold;
 } SaleProduct;
 
@@ -322,6 +323,7 @@ void printLast50Sales(Sale sales[], int end)
         {
             printf("Produto: %s \n", sales[i].soldItems[j].name);
             printf("Quantidade: %d\n", sales[i].soldItems[j].quantitySold);
+            printf("Valor: R$%.2f\n", sales[i].soldItems[j].price);
         }
         printf("DATA = %s \n", sales[i].date);
         printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
@@ -375,8 +377,7 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
         int id = getId("Digite o Id (-1 para cancelar):\n");
         if (id == -1 && counter!=-1)
         {
-            newSale.id = generateNewSaleId();
-            addNewSale(sales, newSale, lastSale);
+
             return;
         }
         else if(id==-1 && counter==-1)
@@ -407,10 +408,13 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
 
         newSale.soldItems[counter].id = id;
         newSale.soldItems[counter].quantitySold = qty;
+        newSale.soldItems[counter].price = products[productPosition].sellPrice;
         strcpy(newSale.soldItems[counter].name, products[productPosition].name);
 
         newSale.totalValue += products[productPosition].sellPrice * qty;
         newSale.numberOfSales = counter + 1;
+        newSale.id = generateNewSaleId();
+        addNewSale(sales, newSale, lastSale);
     } while (counter < 63);
 }
 
@@ -559,6 +563,7 @@ int main()
     Product productsInventory[MAX_QUANTITY_OF_PRODUCTS_TO_STORE];
 
     setlocale(LC_ALL, "Portuguese");
+
     while (selectedMenuOptionCode != EXIT_OPTION_CODE)
     {
         printOptionsMenu();
