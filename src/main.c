@@ -434,13 +434,13 @@ void separateArray(int start, int end, Product array[])
     }
     if (start < pivot - 1)
     {
-        separateArray(pivot - 1, i, array);
+        separateArray(pivot - 1, start, array);
     }
 }
 
 void sortItemsByPrice(int start, int end, Product array[])
 {
-    if ((start == -1 && end == -1) || end == start)
+    if ((start == -1 && end == -1))
     {
         printErrorMessage("Nenhum item foi cadastrado!\n");
         return;
