@@ -106,7 +106,7 @@ void operationMessage(int code){
             printf("----------- ALTERAR UM PRODUTO -----------: \n");
             break;
         case SELL_OPTION_CODE:
-            printf("----------- VENDER UM RODUTO -----------: \n");
+            printf("----------- VENDER UM PRODUTO -----------: \n");
             break;
         case EXIT_OPTION_CODE:
             printf("----------- FINALIZANDO A EXECUÇÃO -----------: \n");
@@ -369,13 +369,17 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
         strftime(buf, BUF_LEN, "%d/%m-%Hh%Mm", ptm);
         strcpy(newSale.date, buf);
 
-        int id = getId("-------Vender Produto---------\nDigite o Id (-1 para cancelar):\n");
-        if (id == -1)
+        int id = getId("Digite o Id (-1 para cancelar):\n");
+        if (id == -1 && counter!=-1)
         {
             newSale.id = generateNewSaleId();
             addNewSale(sales, newSale, lastSale);
-            break;
+            return;
         }
+        else if(id==-1 && counter==-1)
+            return;
+
+
         int productPosition = getProductPositionById(id, products, start, end);
         if (productPosition == -1)
         {
