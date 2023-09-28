@@ -85,7 +85,7 @@ int getId(char text[])
 
 int generateNewProductId()
 {
-    static int newId = -1;
+    static int newId = 0;
     newId++;
     return newId;
 }
@@ -137,13 +137,13 @@ void printErrorMessage(char reason[])
     printf("***********************************\n");
 }
 
-bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPosition)
+void insertProduct(Product inventory[], int *firstListPosition, int *lastListPosition)
 {
     Product newProduct;
     if (isListFull(*firstListPosition, *lastListPosition))
     {
         printErrorMessage("Lista está cheia!");
-        return false;
+        return;
     }
     else if (isListEmpty(*firstListPosition))
     {
@@ -165,12 +165,11 @@ bool insertProduct(Product inventory[], int *firstListPosition, int *lastListPos
     newProduct = readProductData();
     inventory[*lastListPosition] = newProduct;
     printf("Produto inserido com sucesso! ");
-    return true;
 }
 
 int generateNewSaleId()
 {
-    static int newId = -1;
+    static int newId = 0;
     newId++;
     return newId;
 }
@@ -191,7 +190,7 @@ void printProductsList(Product inventory[], int lastListPosition)
 {
     if (lastListPosition == -1)
     {
-        printf("Não existem produtos no cadastrados no estoque! \n");
+        printErrorMessage("Não existem produtos no cadastrados no estoque! \n");
         return;
     }
     printf("\n****** RELATÓRIO DO ESTOQUE COMPLETO ****** \n");
@@ -206,7 +205,7 @@ void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
 {
     if (lastListPosition == -1)
     {
-        printf("Não existem produtos no cadastrados no estoque! \n");
+        printErrorMessage("Não existem produtos no cadastrados no estoque!");
         return;
     }
     int maximumQuantity;
@@ -224,7 +223,7 @@ void printProductsListWithLowQuantity(Product inventory[], int lastListPosition)
     }
     if (!foundAnyProductWithLowQuantity)
     {
-        printf("Nenhum produto satisfaz essa quantidade máxima! \n");
+        printErrorMessage("Nenhum produto satisfaz essa quantidade máxima!");
     }
     printf("************** FIM RELATORIO ************** \n\n\n");
 }
@@ -282,11 +281,11 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
             linearList[j] = linearList[j + 1];
         }
         (*lastListPosition)--;
-        printf("Produto de ID %d foi removido com sucesso", resultadoIdDelete);
+        printErrorMessage("Produto removido com sucesso");
     }
     else
     {
-        printf("Produto com ID %d não encontrado", resultadoIdDelete);
+        printErrorMessage("Produto não encontrado");
     }
 }
 
@@ -294,7 +293,7 @@ void printLast50Sales(Sale sales[], int end)
 {
     if (end == -1)
     {
-        printf("Nenhuma venda foi cadastrada!\n");
+        printErrorMessage("Nenhuma venda foi cadastrada!");
         return;
     }
 
@@ -441,7 +440,7 @@ void sortItemsByPrice(int start, int end, Product array[])
     printProductsList(duplicateArray, end);
 }
 
-void idSearch(Product linearList[], int *firstListPosition, int *lastListPosition)
+void getItemById(Product linearList[], int *firstListPosition, int *lastListPosition)
 {
 
     int searchId;
@@ -483,7 +482,7 @@ int main()
             deleteProduct(productsInventory, &firstListPosition, &lastListPosition);
             break;
         case GET_PRODUCT_OPTION_CODE:
-            idSearch(productsInventory, &firstListPosition, &lastListPosition);
+            getItemById(productsInventory, &firstListPosition, &lastListPosition);
             break;
         case MODIFY_PRODUCT_OPTION_CODE:
             // Call methods here
