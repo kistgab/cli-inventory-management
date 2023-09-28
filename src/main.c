@@ -5,7 +5,8 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 2
+#define MAX_QUANTITY_OF_PRODUCTS_TO_STORE 50
+#define MAX_QUANTITY_OF_SOLD_ITEMS 50
 #define NUMBER_OF_LAST_SALES_TO_STORE 50
 
 #define FIRST_POSSIBLE_PRODUCT_LIST_POSITION 0
@@ -214,6 +215,7 @@ void printProduct(Product product)
     printf("Descrição: %s \n", product.description);
     printf("Quantidade em estq.: %i \n", product.quantity);
     printf("Preço de venda: %.2f \n", product.sellPrice);
+    printf("Data de inserção: %s \n", product.date);
     printf("---------- ** ---------\n");
 }
 
@@ -326,9 +328,11 @@ void printLast50Sales(Sale sales[], int end)
     {
         for (int j = 0; j < sales[i].numberOfSales; j++)
         {
+            printf("\n---------- Item %d--------\n", j+1);
             printf("Produto: %s \n", sales[i].soldItems[j].name);
             printf("Quantidade: %d\n", sales[i].soldItems[j].quantitySold);
             printf("Valor: R$%.2f\n", sales[i].soldItems[j].price);
+            printf("---------- ** ---------\n");
         }
         printf("DATA = %s \n", sales[i].date);
         printf("VALOR TOTAL DA VENDA = R$%.2f \n\n", sales[i].totalValue);
@@ -374,30 +378,36 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
 
     do
     {
-        time_t moment = time(NULL);
-        struct tm *p_tm = localtime(&moment);
-        strftime(date, 30, "%d/%m-%Hh%Mm", p_tm);
-        strcpy(newSale.date, date);
-
-        int id = getId("Digite o Id (-1 para cancelar):\n");
+        int id = getId("Digite o Id (-1 para finalizar):\n");
         if (id == -1 && counter!=-1)
         {
-
-            return;
+            printf("Finalizando venda!\n");
+            break;
         }
         else if(id==-1 && counter==-1)
+        {
+            printf("Cancelando venda!\n");
             return;
-
+        }
 
         int productPosition = getProductPositionById(id, products, start, end);
-        if (productPosition == -1)
+        if (productPosition == -1 && counter!=-1)
         {
-            printf("O produto informado não existe!\n");
+            printErrorMessage("O produto informado não existe!\nA venda foi realizada até o momento deste erro.");
+            break;
+        }
+        else if(productPosition== -1 && counter==-1)
+        {
+            printErrorMessage("O produto informado não existe!");
             return;
         }
         counter++;
-        if (counter > 63)
-            return;
+        if (counter > MAX_QUANTITY_OF_SOLD_ITEMS-1)
+        {
+            printErrorMessage("Você chegou ao limite de produtos em uma única venda!\nA venda foi realizada até o momento deste erro.");
+            break;
+        }
+
         do
         {
             printf("Quantas unidades foram vendidas?\n");
@@ -406,8 +416,8 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
 
         if (products[productPosition].quantity - qty < 0)
         {
-            printf("Operação Cancelada: o estoque e a quantidade vendida não correspondem\n");
-            return;
+            printErrorMessage("O estoque e a quantidade vendida não correspondem!A venda foi realizada até o momento deste erro.");
+            break;
         }
         products[productPosition].quantity -= qty;
 
@@ -418,9 +428,14 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
 
         newSale.totalValue += products[productPosition].sellPrice * qty;
         newSale.numberOfSales = counter + 1;
-        newSale.id = generateNewSaleId();
-        addNewSale(sales, newSale, lastSale);
+
+        time_t moment = time(NULL);
+        struct tm *p_tm = localtime(&moment);
+        strftime(date, 30, "%d/%m-%Hh%Mm", p_tm);
+        strcpy(newSale.date, date);
     } while (counter < 63);
+    newSale.id = generateNewSaleId();
+    addNewSale(sales, newSale, lastSale);
 }
 
 void separateArray(int start, int end, Product array[])
@@ -521,7 +536,7 @@ void modifyProduct(Product linearList[], int *start, int *end)
     }
     product = &linearList[position];
 
-    printf("Operações: (nome), (preco), (descricao), (cancelar)\n");
+    printf("Operações: (nome), (preco), (descricao), (finalizar)\n");
     do
     {
         printf("Qual operação deve ser efetuada?\n");
@@ -547,7 +562,7 @@ void modifyProduct(Product linearList[], int *start, int *end)
             strcpy(product->description, description);
             printf("Edição concluída com sucesso!\n");
         }
-        else if(strcmp(op, "cancelar")==0)
+        else if(strcmp(op, "finalizar")==0)
         {
             break;
         }
@@ -556,7 +571,7 @@ void modifyProduct(Product linearList[], int *start, int *end)
             printErrorMessage("Opção inválida!");
         }
     }
-    while(strcasecmp(op, "Cancelar")!=0);
+    while(strcasecmp(op, "finalizar")!=0);
 }
 
 int main()
