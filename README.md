@@ -1,7 +1,3 @@
-# Docs
-
-https://docs.google.com/document/d/1gK3gYR1aKYFR1R5RPOc_ZLJtB5FpGEaBJqnU6DrM3yE/edit?usp=sharing
-
 # Buteco do Geraldo
 
 ## Descrição
