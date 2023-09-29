@@ -91,29 +91,30 @@ int generateNewProductId()
     return newId;
 }
 
-void operationMessage(int code){
-    switch(code)
+void operationMessage(int code)
+{
+    switch (code)
     {
-        case ADD_PRODUCT_OPTION_CODE:
-            printf("----------- INSERIR UM PRODUTO -----------: \n");
-            break;
-        case DELETE_PRODUCT_OPTION_CODE:
-            printf("----------- REMOVER UM PRODUTO -----------: \n");
-            break;
-        case GET_PRODUCT_OPTION_CODE:
-            printf("----------- CONSULTAR UM PRODUTO -----------: \n");
-            break;
-        case MODIFY_PRODUCT_OPTION_CODE:
-            printf("----------- ALTERAR UM PRODUTO -----------: \n");
-            break;
-        case SELL_OPTION_CODE:
-            printf("----------- VENDER UM PRODUTO -----------: \n");
-            break;
-        case EXIT_OPTION_CODE:
-            printf("----------- FINALIZANDO A EXECUÇÃO -----------: \n");
-            break;
-        default:
-            break;
+    case ADD_PRODUCT_OPTION_CODE:
+        printf("----------- INSERIR UM PRODUTO -----------: \n");
+        break;
+    case DELETE_PRODUCT_OPTION_CODE:
+        printf("----------- REMOVER UM PRODUTO -----------: \n");
+        break;
+    case GET_PRODUCT_OPTION_CODE:
+        printf("----------- CONSULTAR UM PRODUTO -----------: \n");
+        break;
+    case MODIFY_PRODUCT_OPTION_CODE:
+        printf("----------- ALTERAR UM PRODUTO -----------: \n");
+        break;
+    case SELL_OPTION_CODE:
+        printf("----------- VENDER UM PRODUTO -----------: \n");
+        break;
+    case EXIT_OPTION_CODE:
+        printf("----------- FINALIZANDO A EXECUÇÃO -----------: \n");
+        break;
+    default:
+        break;
     }
 }
 
@@ -274,7 +275,7 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
 {
     int positionToDelete = -1, i, j, resultadoIdDelete;
 
-    if(*firstListPosition==-1 && *lastListPosition==-1)
+    if (*firstListPosition == -1 && *lastListPosition == -1)
     {
         printErrorMessage("Nenhum produto foi cadastrado!");
         return;
@@ -286,7 +287,8 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
     {
         if (linearList[i].id == resultadoIdDelete)
         {
-            if(linearList[i].quantity > 0){
+            if (linearList[i].quantity > 0)
+            {
                 printErrorMessage("Não pode ser excluido um item que tem estoque.");
                 positionToDelete = -2;
                 break;
@@ -303,16 +305,16 @@ void deleteProduct(Product linearList[], int *firstListPosition, int *lastListPo
             linearList[j] = linearList[j + 1];
         }
         (*lastListPosition)--;
-        if(*lastListPosition==-1){
+        if (*lastListPosition == -1)
+        {
             *firstListPosition = -1;
         }
         printf("Produto removido com sucesso!\n");
     }
-    else if(positionToDelete==-1)
+    else if (positionToDelete == -1)
     {
         printErrorMessage("Produto não encontrado");
     }
-
 }
 
 void printLast50Sales(Sale sales[], int end)
@@ -328,7 +330,7 @@ void printLast50Sales(Sale sales[], int end)
     {
         for (int j = 0; j < sales[i].numberOfSales; j++)
         {
-            printf("\n---------- Item %d--------\n", j+1);
+            printf("\n---------- Item %d--------\n", j + 1);
             printf("Produto: %s \n", sales[i].soldItems[j].name);
             printf("Quantidade: %d\n", sales[i].soldItems[j].quantitySold);
             printf("Valor: R$%.2f\n", sales[i].soldItems[j].price);
@@ -379,30 +381,30 @@ void sellProduct(int start, int end, Product products[], Sale sales[], int *last
     do
     {
         int id = getId("Digite o Id (-1 para finalizar):\n");
-        if (id == -1 && counter!=-1)
+        if (id == -1 && counter != -1)
         {
             printf("Finalizando venda!\n");
             break;
         }
-        else if(id==-1 && counter==-1)
+        else if (id == -1 && counter == -1)
         {
             printf("Cancelando venda!\n");
             return;
         }
 
         int productPosition = getProductPositionById(id, products, start, end);
-        if (productPosition == -1 && counter!=-1)
+        if (productPosition == -1 && counter != -1)
         {
             printErrorMessage("O produto informado não existe!\nA venda foi realizada até o momento deste erro.");
             break;
         }
-        else if(productPosition== -1 && counter==-1)
+        else if (productPosition == -1 && counter == -1)
         {
             printErrorMessage("O produto informado não existe!");
             return;
         }
         counter++;
-        if (counter > MAX_QUANTITY_OF_SOLD_ITEMS-1)
+        if (counter > MAX_QUANTITY_OF_SOLD_ITEMS - 1)
         {
             printErrorMessage("Você chegou ao limite de produtos em uma única venda!\nA venda foi realizada até o momento deste erro.");
             break;
@@ -490,7 +492,7 @@ void getItemById(Product linearList[], int *firstListPosition, int *lastListPosi
 
     int searchId;
 
-    if(*firstListPosition==-1 && *lastListPosition==-1)
+    if (*firstListPosition == -1 && *lastListPosition == -1)
     {
         printErrorMessage("Nenhum produto foi cadastrado!");
         return;
@@ -514,22 +516,22 @@ void getItemById(Product linearList[], int *firstListPosition, int *lastListPosi
 void modifyProduct(Product linearList[], int *start, int *end)
 {
     int id;
-    Product* product;
+    Product *product;
     float sellPrice;
     char name[128], description[128];
     char op[30];
 
-    if(*start==-1 && *end==-1)
+    if (*start == -1 && *end == -1)
     {
         printErrorMessage("Nenhum produto foi cadastrado!");
         return;
     }
 
     printf("Digite o id do produto: \n");
-    scanf("%d",&id);
+    scanf("%d", &id);
 
     int position = getProductPositionById(id, linearList, *start, *end);
-    if(position==-1)
+    if (position == -1)
     {
         printErrorMessage("Número de ID inexistente!");
         return;
@@ -541,28 +543,28 @@ void modifyProduct(Product linearList[], int *start, int *end)
     {
         printf("Qual operação deve ser efetuada?\n");
         scanf(" %127[^\n]", op);
-        if(strcasecmp(op, "nome")==0)
+        if (strcasecmp(op, "nome") == 0)
         {
             printf("Digite o nome do produto: \n");
             scanf(" %127[^\n]", name);
             strcpy(product->name, name);
             printf("Edição concluída com sucesso!\n");
         }
-        else if(strcasecmp(op, "preco")==0)
+        else if (strcasecmp(op, "preco") == 0)
         {
             printf("Digite o valor do produto: \n");
             scanf("%f", &sellPrice);
             product->sellPrice = sellPrice;
             printf("Edição concluída com sucesso!\n");
         }
-        else if(strcasecmp(op, "descricao")==0)
+        else if (strcasecmp(op, "descricao") == 0)
         {
             printf("Informe a descrição do produto: \n");
             scanf(" %127[^\n]", description);
             strcpy(product->description, description);
             printf("Edição concluída com sucesso!\n");
         }
-        else if(strcmp(op, "finalizar")==0)
+        else if (strcmp(op, "finalizar") == 0)
         {
             break;
         }
@@ -570,8 +572,7 @@ void modifyProduct(Product linearList[], int *start, int *end)
         {
             printErrorMessage("Opção inválida!");
         }
-    }
-    while(strcasecmp(op, "finalizar")!=0);
+    } while (strcasecmp(op, "finalizar") != 0);
 }
 
 int main()
